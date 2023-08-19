@@ -109,11 +109,6 @@ CHAR_SMI_SET = {"(": 1, ".": 2, "0": 3, "2": 4, "4": 5, "6": 6, "8": 7, "@": 8,
                 "S": 49, "U": 50, "W": 51, "Y": 52, "[": 53, "]": 54, "a": 55, "c": 56,
                 "e": 57, "g": 58, "i": 59, "m": 60, "o": 61, "s": 62, "u": 63, "y": 64}
 
-
-# responses_label = np.load("data/kiba_label.npy")
-# responses_protein = open("data/kiba_label_key.txt", 'r').read().split("\n")
-
-
 def zhu(dataset,fileinput):
     with open(dataset,"r") as f:
         data_list = f.read().strip().split('\n')
@@ -123,7 +118,7 @@ def zhu(dataset,fileinput):
     compounds, compound_yuyi, adjacencies,morgan,proteins,interactions,ss_s = [], [], [], [], [],[],[]
     labels = []
     # proteins_f = []
-    file_ = 'out/' + "O00141.txt"
+    file_ = 'out/' + "protein.txt" #write in
     f = open(file_, "w")
     for no, data in enumerate(data_list):
         print('/'.join(map(str, [no + 1, N])))
@@ -132,86 +127,79 @@ def zhu(dataset,fileinput):
         if protein_id == "O00141" and float(interaction) > 11.5:
             f.write("drug:" + str(drug_id) + "  smiles:" +  str(smiles) + "  interaction:" +str(interaction) + "\n")
         # print(drug_id)
-        # yuyi_vec = []
-        # for i in range(len(smiles)):
-        #     yuyi_vec.append(CHAR_SMI_SET[smiles[i]])
-        # yuyi_vec = np.array(yuyi_vec)
-        # compound_yuyi.append(yuyi_vec)
+        yuyi_vec = []
+        for i in range(len(smiles)):
+            yuyi_vec.append(CHAR_SMI_SET[smiles[i]])
+        yuyi_vec = np.array(yuyi_vec)
+        compound_yuyi.append(yuyi_vec)
         # print(smiles)
         # print(sequences)
         # print(interaction)
 
-        # atom_feature, adj = smile_to_graph(smiles)
+        atom_feature, adj = smile_to_graph(smiles)
+        print(atom_feature.shape)
+        mol = Chem.MolFromSmiles(smiles)
+        fp = AllChem.GetMorganFingerprintAsBitVect(mol,2,2048)
+        npfp = np.array(list(fp.ToBitString())).astype('int8')
+        morgan.append(npfp)
+        print(npfp)
+        compounds.append(atom_feature)
         # print(atom_feature.shape)
-        # mol = Chem.MolFromSmiles(smiles)
-        # fp = AllChem.GetMorganFingerprintAsBitVect(mol,2,2048)
-        # npfp = np.array(list(fp.ToBitString())).astype('int8')
-        # morgan.append(npfp)
-        # print(npfp)
-        # compounds.append(atom_feature)
-        # # print(atom_feature.shape)
-        # adjacencies.append(adj)
-        # newsequence = ''
-        # for i in range(len(sequences)):
-        #     newsequence += dicts[sequences[i]]
-        # newsequence2 = ''
-        # for i in range(len(newsequence)):
-        #     newsequence2 += str(seq_dic2[newsequence[i]])
+        adjacencies.append(adj)
+        newsequence = ''
+        for i in range(len(sequences)):
+            newsequence += dicts[sequences[i]]
+        newsequence2 = ''
+        for i in range(len(newsequence)):
+            newsequence2 += str(seq_dic2[newsequence[i]])
 
         # protein_fea = buling(newsequence2)
-        # protein_feature = split_sequence2(newsequence2, 3)
-        # protein_fea = split_sequence2(sequences, 3)
-        # proteins_f.append(protein_feature)
-        # ss_vector = pre_ss(sequences)
-        # ss_s.append(ss_vector)
+        protein_feature = split_sequence2(newsequence2, 3)
+        protein_fea = split_sequence2(sequences, 3)
+        proteins_f.append(protein_feature)
+        ss_vector = pre_ss(sequences)
+        ss_s.append(ss_vector)
 
-        #words = split_sequence(sequence, 3)
-        # newsequence = ''
-        #
-        # for i in range(len(sequences)):
-        #     newsequence += dicts[sequences[i]]
-        # newsequence2 = ''
-        # for i in range(len(newsequence)):
-        #     newsequence2 += str(seq_dic2[newsequence[i]])
-        #
-        # #protein_fea = buling(newsequence2)
-        # protein_feature = split_sequence2(newsequence2,3)
-        # proteins.append(protein_feature)
-
-        # interactions.append(np.array([float(interaction)]))
-        # label_key = sequences[0:10]
-        # # t = 0
-        # for i in range(len(responses_protein)):
-        #     if responses_protein[i] == label_key:
-        #         # print(responses_label[i])
-        #         labels.append(np.array(responses_label[i]))
-        #         break
-        # print(t)
-
-    # responses_labels_ = np.array(labels)
-    # print(responses_labels_.shape)
-    dir_input = fileinput
-    os.makedirs(dir_input, exist_ok=True)
-    # np.save(dir_input + 'compounds', compounds)
-    # np.save(dir_input + 'adjacencies', adjacencies)
-    # np.save(dir_input + 'morgan', morgan)
-    # np.save(dir_input + 'proteins_feature', proteins_f)
-    # np.save(dir_input + 'interactions', interactions)
-    # np.save(dir_input + 'ss_vector', ss_s)
-    # np.save(dir_input + 'compound_words', compound_yuyi)
-    # np.save(dir_input + 'responses_labels', responses_labels_)
-
-
+        words = split_sequence(sequence, 3)
+        newsequence = ''
+        
+        for i in range(len(sequences)):
+            newsequence += dicts[sequences[i]]
+        newsequence2 = ''
+        for i in range(len(newsequence)):
+            newsequence2 += str(seq_dic2[newsequence[i]])
     
 
+        interactions.append(np.array([float(interaction)]))
+        label_key = sequences[0:10]
+        # t = 0
+        for i in range(len(responses_protein)):
+            if responses_protein[i] == label_key:
+                # print(responses_label[i])
+                labels.append(np.array(responses_label[i]))
+                break
+        print(t)
+
+    responses_labels_ = np.array(labels)
+    print(responses_labels_.shape)
+    dir_input = fileinput
+    os.makedirs(dir_input, exist_ok=True)
+    np.save(dir_input + 'compounds', compounds)
+    np.save(dir_input + 'adjacencies', adjacencies)
+    np.save(dir_input + 'morgan', morgan)
+    np.save(dir_input + 'proteins_feature', proteins_f)
+    np.save(dir_input + 'interactions', interactions)
+    np.save(dir_input + 'ss_vector', ss_s)
+    np.save(dir_input + 'compound_words', compound_yuyi)
+    np.save(dir_input + 'responses_labels', responses_labels_)
 
 if __name__ == "__main__":
 
     import os
     word_dict = defaultdict(lambda: len(word_dict))
-    #zhu("humans/original/data.txt",'humans/input/input_data/')
-    #zhu("DB/original/dev.txt",'DB/input/input_dev/')
-    # zhu("davis_str_all.txt",'davis_input/')
+    # zhu("humans/original/data.txt",'humans/input/input_data/')
+    # zhu("DB/original/dev.txt",'DB/input/input_dev/')
+    zhu("davis_str_all.txt",'davis_input/')
     zhu("kiba_str_all.txt", 'out/')
     print(len(word_dict))
     print('The preprocess of dataset has finished!')
