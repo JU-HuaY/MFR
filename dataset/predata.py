@@ -118,15 +118,10 @@ def zhu(dataset,fileinput):
     compounds, compound_yuyi, adjacencies,morgan,proteins,interactions,ss_s = [], [], [], [], [],[],[]
     labels = []
     # proteins_f = []
-    file_ = 'out/' + "protein.txt" #write in
-    f = open(file_, "w")
     for no, data in enumerate(data_list):
         print('/'.join(map(str, [no + 1, N])))
 
         drug_id, protein_id, smiles, sequences, interaction = data.strip().split(" ")
-        if protein_id == "O00141" and float(interaction) > 11.5:
-            f.write("drug:" + str(drug_id) + "  smiles:" +  str(smiles) + "  interaction:" +str(interaction) + "\n")
-        # print(drug_id)
         yuyi_vec = []
         for i in range(len(smiles)):
             yuyi_vec.append(CHAR_SMI_SET[smiles[i]])
