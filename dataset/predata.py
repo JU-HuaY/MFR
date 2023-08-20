@@ -109,6 +109,9 @@ CHAR_SMI_SET = {"(": 1, ".": 2, "0": 3, "2": 4, "4": 5, "6": 6, "8": 7, "@": 8,
                 "S": 49, "U": 50, "W": 51, "Y": 52, "[": 53, "]": 54, "a": 55, "c": 56,
                 "e": 57, "g": 58, "i": 59, "m": 60, "o": 61, "s": 62, "u": 63, "y": 64}
 
+responses_label = np.load("kiba_label.npy")
+responses_protein = open("kiba_label_key.txt", 'r').read().split("\n")
+
 def zhu(dataset,fileinput):
     with open(dataset,"r") as f:
         data_list = f.read().strip().split('\n')
@@ -173,9 +176,8 @@ def zhu(dataset,fileinput):
                 # print(responses_label[i])
                 labels.append(np.array(responses_label[i]))
                 break
-        print(t)
-
     responses_labels_ = np.array(labels)
+    
     print(responses_labels_.shape)
     dir_input = fileinput
     os.makedirs(dir_input, exist_ok=True)
